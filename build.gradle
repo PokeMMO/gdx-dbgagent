@@ -1,0 +1,39 @@
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "idea"
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+jar {
+    from files(sourceSets.main.output.classesDirs) 
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }}
+
+    exclude('META-INF')
+    exclude('META-INF/**')
+    
+    archiveName = "gdx-dbgagent.jar"
+    
+    manifest {
+        attributes(
+            "Premain-Class": "gdxdbg.DgbAgent",
+            "Can-Redefine-Classes": "true",
+            "Can-Retransform-Classes": "true",
+            "Can-Set-Native-Method-Prefix": "true",
+       )
+    }
+}
+
+dependencies {
+    implementation 'org.javassist:javassist:3.25.0-GA'
+}
