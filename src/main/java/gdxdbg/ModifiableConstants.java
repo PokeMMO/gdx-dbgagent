@@ -24,7 +24,11 @@ public class ModifiableConstants implements Runnable
 	public ModifiableConstants()
 	{
 		if(Properties.DEBUG_MODIFIABLE_CONSTANTS)
-			new Thread(this, "gdx-dbgagent-watchdog").start();
+		{
+			Thread t = new Thread(this, "gdx-dbgagent-watchdog");
+			t.setDaemon(true);
+			t.start();
+		}
 	}
 	
 	@Override
