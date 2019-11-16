@@ -13,6 +13,10 @@ Java Agent for debugging common libgdx related issues.
   - Enables debugging if certain `modifiable constant`'s values change during runtime.
   - Things constants like Color.WHITE can be accidently modified, leading to unexpected results.
   - This utility will alert you that this has occurred, but not what has caused it.
+* GL_THREAD
+  - Enables debugging of methods/constructors called from incorrect threads.
+  - Any method or constructor that has an annotation with the name `@RequireGLThread` will throw a warning when called from a thread other than the main GL thread.
+  - Certain scene2d methods are included by default in this detection.
 
 # Usage
 

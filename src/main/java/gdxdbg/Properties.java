@@ -25,6 +25,10 @@ public class Properties
 	 * This utility will alert you that this has occurred, but not what has caused it.
 	 */
 	public static final boolean DEBUG_MODIFIABLE_CONSTANTS = parseProperty("gdxdbg.debug.modifiable_constants", true);
+	/**
+	 * Enables debugging of methods/constructors called from incorrect threads.
+	 */
+	public static final boolean DEBUG_GL_THREAD = parseProperty("gdxdbg.debug.gl_thread", true);
 	
 	private static boolean parseProperty(String name, boolean def)
 	{

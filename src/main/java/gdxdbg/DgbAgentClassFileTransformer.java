@@ -25,6 +25,7 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 	public static final String FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE = "$$$doubledisposeexception";
 	
 	private ModifiableConstants modifiableConstants = new ModifiableConstants();
+	private GLThreadVerification glThreadVerification = new GLThreadVerification();
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
@@ -55,6 +56,11 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 		if(modifiableConstants.containsModifiableConstants(clazz))
 		{
 			modifiableConstants.collectModifiableConstants(clazz);
+			modified = true;
+		}
+		
+		if(glThreadVerification.transform(clazz))
+		{
 			modified = true;
 		}
 		
@@ -100,7 +106,7 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 
 		if(modified)
 			return clazz.toBytecode();
-		
+
 		return null;
 	}
 
