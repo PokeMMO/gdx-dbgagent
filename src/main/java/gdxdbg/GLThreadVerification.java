@@ -110,7 +110,7 @@ public class GLThreadVerification
 						return true;
 				}
 				break;
-			case "com/badlogic/gdx/scenes/scene2d/ui/TextField":
+			case "com.badlogic.gdx.scenes.scene2d.ui.TextField":
 				if(c instanceof CtConstructor)
 					return true;
 				
