@@ -1,5 +1,8 @@
 package gdxdbg;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 /**
  * Basic configurable options
  * @author Desu
@@ -36,5 +39,23 @@ public class Properties
 		if (value != null)
 			return value.equals("") || Boolean.valueOf(value);
 		return def;
+	}
+	
+	static
+	{
+		try
+		{
+			for (Field f : Properties.class.getDeclaredFields())
+			{
+				if (!Modifier.isStatic(f.getModifiers()))
+					continue;
+				
+				System.out.println("[gdx-dbgagent] " + f.getName() + " = " + f.get(null));
+			}
+		}
+		catch(Exception e)
+		{
+			
+		}
 	}
 }

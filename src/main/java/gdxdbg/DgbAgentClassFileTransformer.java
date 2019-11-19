@@ -102,10 +102,15 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 			}
 			
 			writeDisposibleObjectImpl(clazz);
+			modified = true;
 		}
 
 		if(modified)
+		{
+			if(Properties.TRACE)
+				System.out.println(clazz.getName() + " was modified.");
 			return clazz.toBytecode();
+		}
 
 		return null;
 	}
