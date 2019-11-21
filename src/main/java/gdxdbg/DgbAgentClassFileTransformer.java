@@ -183,7 +183,7 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 					StringBuilder sb = new StringBuilder();
 					if(clazz.getName().equals("com.badlogic.gdx.graphics.GLTexture"))
 					{
-						sb.append("if(this instanceof com.badlogic.gdx.graphics.Texture){} else ");
+						sb.append("if((this instanceof com.badlogic.gdx.graphics.Texture) || (this instanceof com.badlogic.gdx.graphics.Cubemap)){} else ");
 					}
 					sb.append("if("+FIELD_NAME_EXCEPTION+" != null) "+FIELD_NAME_EXCEPTION+".printStackTrace();");
 					
