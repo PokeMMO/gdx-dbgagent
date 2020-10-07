@@ -26,6 +26,8 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 	
 	private ModifiableConstants modifiableConstants = new ModifiableConstants();
 	private GLThreadVerification glThreadVerification = new GLThreadVerification();
+	
+	private static CtClass[] EMPTY_CT_CLASSES = new CtClass[0];
 
 	@Override
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException
@@ -78,15 +80,14 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 		boolean foundValidDisposeMethod = false;
 		if(isDisposable)
 		{
-			for(CtMethod method : clazz.getDeclaredMethods())
+			try
 			{
-				if(!isDisposible(method))
-				{
-					continue;
-				}
-	
-				foundValidDisposeMethod = true;
-				break;
+				CtMethod method = clazz.getDeclaredMethod("dispose", EMPTY_CT_CLASSES);
+				foundValidDisposeMethod = isDisposible(method);
+			}
+			catch(NotFoundException e)
+			{
+				// Don't care
 			}
 		}
 		
@@ -124,7 +125,7 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 			return false;
 		
 		// These aren't necessarily required to be disposed, and their sub resources will warn us of issues
-		if(clazz.getName().startsWith("com.badlogic.gdx.graphics.g2d.PixmapPacker"))
+		if(clazz.getName().startsWith("com.badlogic.gdx.graphics.g2d.PixmapPacker") || clazz.getName().startsWith("com.badlogic.gdx.maps.Map"))
 			return false;
 		
 		if(clazz.equals(disposable))
@@ -173,63 +174,62 @@ public class DgbAgentClassFileTransformer implements ClassFileTransformer
 
 	private void writeDisposibleObjectMethods(CtClass clazz) throws NotFoundException, CannotCompileException
 	{
-		CtMethod[] x = clazz.getMethods();
 		if(Properties.DEBUG_UNDISPOSED)
 		{
-			for(CtMethod meth : x)
+			CtMethod meth = null;
+			try
 			{
-				if(meth.getName().equals("finalize"))
-				{
-					StringBuilder sb = new StringBuilder();
-					if(clazz.getName().equals("com.badlogic.gdx.graphics.GLTexture"))
-					{
-						sb.append("if((this instanceof com.badlogic.gdx.graphics.Texture) || (this instanceof com.badlogic.gdx.graphics.Cubemap)){} else ");
-					}
-					sb.append("if("+FIELD_NAME_EXCEPTION+" != null) "+FIELD_NAME_EXCEPTION+".printStackTrace();");
-					
-					try
-					{
-						meth = clazz.getDeclaredMethod(meth.getName());
-					}
-					catch (NotFoundException e)
-					{
-						if(Properties.TRACE)
-							System.out.println("finalize not found creating it");
-						CtMethod m = CtNewMethod.make("public void finalize() throws Throwable { "+sb.toString()+"; super.finalize(); } ", clazz);
-						clazz.addMethod(m);
-						break;
-					}
-					if(Properties.TRACE)
-						System.out.println("modifing " + clazz.getName() + "'s finalize method");
-					meth.insertBefore("{ "+sb.toString()+" }");
-				}
+				meth = clazz.getDeclaredMethod("finalize", EMPTY_CT_CLASSES);
+			}
+			catch(NotFoundException e)
+			{
+				//Ignored
+			}
+			
+			StringBuilder sb = new StringBuilder();
+			if(clazz.getName().equals("com.badlogic.gdx.graphics.GLTexture"))
+			{
+				sb.append("if((this instanceof com.badlogic.gdx.graphics.Texture) || (this instanceof com.badlogic.gdx.graphics.Cubemap)){} else ");
+			}
+			sb.append("if("+FIELD_NAME_EXCEPTION+" != null) "+FIELD_NAME_EXCEPTION+".printStackTrace();");
+			
+			if(meth == null)
+			{
+				if(Properties.TRACE)
+					System.out.println("finalize not found creating it");
+				CtMethod m = CtNewMethod.make("public void finalize() throws Throwable { "+sb.toString()+"; super.finalize(); } ", clazz);
+				clazz.addMethod(m);
+			}
+			else
+			{
+				if(Properties.TRACE)
+					System.out.println("modifing " + clazz.getName() + "'s finalize method");
+				meth.insertBefore("{ "+sb.toString()+" }");
 			}
 		}
 		
 		if(Properties.DEBUG_UNDISPOSED || Properties.DEBUG_DOUBLE_DISPOSE)
 		{
-			for(CtMethod meth : x)
+			CtMethod meth = null;
+			try
 			{
-				if(meth.getName().equals("dispose"))
-				{
-					try
-					{
-						meth = clazz.getDeclaredMethod(meth.getName());
-					}
-					catch (NotFoundException e)
-					{
-						throw new RuntimeException("Could not find dispose method, this should not happen");
-					}
-					
-					if(Properties.DEBUG_UNDISPOSED)
-						meth.insertBefore("{ "+FIELD_NAME_EXCEPTION+" = null; }");
+				meth = clazz.getDeclaredMethod("dispose", EMPTY_CT_CLASSES);
+			}
+			catch(NotFoundException e)
+			{
+				//Ignored
+			}
 
-					// Some are safe to double dispose
-					if(Properties.DEBUG_DOUBLE_DISPOSE && !"com.badlogic.gdx.graphics.Texture".equals(clazz.getName()))
-						meth.insertBefore("{ synchronized(this) { if("+FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+" != null) new RuntimeException(\"Double Dispose\", "+FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+").printStackTrace(); "
-								+ FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+" = new RuntimeException(\"Previous Dispose\");"
-								+ "} }");
-				}
+			if(meth != null)
+			{
+				if(Properties.DEBUG_UNDISPOSED)
+					meth.insertBefore("{ "+FIELD_NAME_EXCEPTION+" = null; }");
+
+				// Some are safe to double dispose
+				if(Properties.DEBUG_DOUBLE_DISPOSE && !"com.badlogic.gdx.graphics.Texture".equals(clazz.getName()))
+					meth.insertBefore("{ synchronized(this) { if("+FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+" != null) new RuntimeException(\"Double Dispose\", "+FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+").printStackTrace(); "
+							+ FIELD_NAME_EXCEPTION_DOUBLE_DISPOSE+" = new RuntimeException(\"Previous Dispose\");"
+							+ "} }");
 			}
 		}
 	}
