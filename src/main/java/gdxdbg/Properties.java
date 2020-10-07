@@ -50,7 +50,27 @@ public class Properties
 				if (!Modifier.isStatic(f.getModifiers()))
 					continue;
 				
-				System.out.println("[gdx-dbgagent] " + f.getName() + " = " + f.get(null));
+				String property = "";
+				switch(f.getName())
+				{
+					case "TRACE":
+						property = "gdxdbg.trace";
+						break;
+					case "DEBUG_UNDISPOSED":
+						property = "gdxdbg.debug.undisposed";
+						break;
+					case "DEBUG_DOUBLE_DISPOSE":
+						property = "gdxdbg.debug.double_dispose";
+						break;
+					case "DEBUG_MODIFIABLE_CONSTANTS":
+						property = "gdxdbg.debug.modifiable_constants";
+						break;
+					case "DEBUG_GL_THREAD":
+						property = "gdxdbg.debug.gl_thread";
+						break;
+				}
+				
+				System.out.println("[gdx-dbgagent] " + f.getName() + " -D" + property + "=" + f.get(null));
 			}
 		}
 		catch(Exception e)
