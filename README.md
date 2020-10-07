@@ -4,16 +4,16 @@ Java Agent for debugging common libgdx related issues.
 
 # Debug utilities
 
-* UNDISPOSED
+* UNDISPOSED (-Dgdxdbg.debug.undisposed=true)
   - Enables debugging if a Disposable object is finalized without being properly disposed.
-* DOUBLE_DISPOSE (Disabled by default)
+* DOUBLE_DISPOSE (-Dgdxdbg.debug.double_dispose=false)
   - Enables debugging if a dispose method is called multiple times.
   - Not recommended to use, double dispose calls should be made safe if not already.
-* MODIFIABLE_CONSTANTS
+* MODIFIABLE_CONSTANTS (-Dgdxdbg.debug.modifiable_constants=true)
   - Enables debugging if certain `modifiable constant`'s values change during runtime.
   - Things constants like Color.WHITE can be accidently modified, leading to unexpected results.
   - This utility will alert you that this has occurred, but not what has caused it.
-* GL_THREAD
+* GL_THREAD (-Dgdxdbg.debug.gl_thread=true)
   - Enables debugging of methods/constructors called from incorrect threads.
   - Any method or constructor that has an annotation with the name `@RequireGLThread` will throw a warning when called from a thread other than the main GL thread.
   - Certain scene2d methods are included by default in this detection.
