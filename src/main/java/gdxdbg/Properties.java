@@ -18,10 +18,9 @@ public class Properties
 	 */
 	public static final boolean DEBUG_UNDISPOSED = parseProperty("gdxdbg.debug.undisposed", true);
 	/**
-	 * Enables debugging if a dispose method is called multiple times.<br/>
-	 * Not recommended to use, double dispose calls should be made safe if not already.
+	 * Enables debugging if a java.io.Closeable object is finalized without being properly disposed.
 	 */
-	public static final boolean DEBUG_DOUBLE_DISPOSE = parseProperty("gdxdbg.debug.double_dispose", false);
+	public static final boolean DEBUG_UNCLOSED = parseProperty("gdxdbg.debug.unclosed", true);
 	/**
 	 * Enables debugging if certain `modifiable constant`'s values change during runtime.<br/>
 	 * Certain constants like `Color.WHITE` can be accidently modified, leading to unexpected results.<br/>
@@ -59,8 +58,8 @@ public class Properties
 					case "DEBUG_UNDISPOSED":
 						property = "gdxdbg.debug.undisposed";
 						break;
-					case "DEBUG_DOUBLE_DISPOSE":
-						property = "gdxdbg.debug.double_dispose";
+					case "DEBUG_UNCLOSED":
+						property = "gdxdbg.debug.unclosed";
 						break;
 					case "DEBUG_MODIFIABLE_CONSTANTS":
 						property = "gdxdbg.debug.modifiable_constants";

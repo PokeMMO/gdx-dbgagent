@@ -6,9 +6,9 @@ Java Agent for debugging common libgdx related issues.
 
 * UNDISPOSED (-Dgdxdbg.debug.undisposed=true)
   - Enables debugging if a Disposable object is finalized without being properly disposed.
-* DOUBLE_DISPOSE (-Dgdxdbg.debug.double_dispose=false)
-  - Enables debugging if a dispose method is called multiple times.
-  - Not recommended to use, double dispose calls should be made safe if not already.
+* DEBUG_UNCLOSED (-Dgdxdbg.debug.unclosed=true)
+  - Enables debugging if a java.io.Closeable object is finalized without being properly disposed.
+  - Cannot currently debug classes which are loaded before java agent is loaded. :(
 * MODIFIABLE_CONSTANTS (-Dgdxdbg.debug.modifiable_constants=true)
   - Enables debugging if certain `modifiable constant`'s values change during runtime.
   - Things constants like Color.WHITE can be accidently modified, leading to unexpected results.
